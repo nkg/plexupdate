@@ -330,7 +330,15 @@ if [ "${AUTOINSTALL}" == "yes" ]; then
 	if [ "${REDHAT}" == "yes" ]; then
 		sudo yum -y install "${DOWNLOADDIR}/${FILENAME}"
 	else
-		sudo dpkg -i "${DOWNLOADDIR}/${FILENAME}"
+		grep -q Debian /etc/issue >/dev/null 2>/dev/null
+		if [ $? -eq 0 ]; then
+	 		DEBIAN="yes";
+			source debian.sh
+		else
+			DEBIAN="no";
+			# presume ubuntu
+	    		sudo dpkg -i "${DOWNLOADDIR}/${FILENAME}"
+                fi
 	fi
 fi
 
@@ -347,11 +355,14 @@ if [ "${AUTOSTART}" == "yes" ]; then
 	if [ "${REDHAT}" == "no" ]; then
 		echo "The AUTOSTART [-s] option may not be needed on your distribution."
 	fi
-	# Check for systemd
-	if [ -f "/bin/systemctl" ]; then
-		systemctl start plexmediaserver.service
-	else
-		/sbin/service plexmediaserver start
+	
+	if [ "${DEBIAN}" == "no" ]; then
+		# Check for systemd
+		if [ -f "/bin/systemctl" ]; then
+			systemctl start plexmediaserver.service
+		else
+			/sbin/service plexmediaserver start
+		fi
 	fi
 fi
 
