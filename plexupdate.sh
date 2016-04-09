@@ -56,6 +56,8 @@ AUTOINSTALL=no
 AUTODELETE=no
 AUTOUPDATE=no
 AUTOSTART=no
+SCRIPT=$(readlink -f $0)
+SCRIPTPATH=`dirname $SCRIPT`
 
 # Sanity, make sure wget is in our path...
 wget >/dev/null 2>/dev/null
@@ -333,8 +335,8 @@ if [ "${AUTOINSTALL}" == "yes" ]; then
 		grep -q Debian /etc/issue >/dev/null 2>/dev/null
 		if [ $? -eq 0 ]; then
 	 		DEBIAN="yes";
-			source debian.sh
-		else
+		  source ${SCRIPTPATH}/debian.sh
+    else
 			DEBIAN="no";
 			# presume ubuntu
 	    		sudo dpkg -i "${DOWNLOADDIR}/${FILENAME}"
